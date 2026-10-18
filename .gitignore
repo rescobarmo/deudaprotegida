@@ -1,7 +1,11 @@
 api/config.php
 .env
 .env.*
+!.env.example
+/sql/init/*.sql
+!/sql/init/00-permissions.sql
 *.log
 node_modules/
+/vendor/
 .DS_Store
 Thumbs.db

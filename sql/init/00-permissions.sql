@@ -1,0 +1,3 @@
+REVOKE ALL PRIVILEGES, GRANT OPTION FROM 'deuda_app'@'%';
+GRANT SELECT ON `totemly`.* TO 'deuda_app'@'%';
+FLUSH PRIVILEGES;

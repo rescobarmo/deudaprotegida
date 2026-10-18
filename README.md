@@ -8,6 +8,7 @@ Panel analítico gerencial conectado a MySQL (`totemly`) para explorar leads, mo
 - Base de datos: MySQL 8.0+ / MariaDB 10.4+ (se usan expresiones regulares, CTEs y funciones de ventana).
 - Frontend: HTML5, Tailwind CSS 3.4 compilado, ApexCharts 3.54 y módulos ES nativos.
 - Sin dependencia de Node en ejecución: los assets de terceros están en `assets/vendor`.
+- Docker opcional: PHP 8.2 + Apache y MariaDB 10.11 mediante `docker compose`.
 
 ## Inicio rápido
 
@@ -16,7 +17,7 @@ Panel analítico gerencial conectado a MySQL (`totemly`) para explorar leads, mo
 3. Abre `http://localhost/deudaprotegida/`.
 4. La conexión por defecto es `127.0.0.1:3306`, base `totemly`, usuario `root`, sin contraseña.
 
-La autenticación se explica en la sección siguiente.
+La autenticación se explica en la sección siguiente. También puedes desplegar con Docker usando la sección **Docker**.
 
 La tabla se detecta automáticamente. El requerimiento indicaba `datos_deudaprotegida`, pero la base local contiene `datos_deudaprotegina`; el backend intenta, en orden:
 
@@ -67,6 +68,47 @@ Edita `api/config.php` o define variables de entorno en Apache/Windows:
 
 Para producción crea un usuario MySQL dedicado con permisos de solo lectura sobre la tabla o vista, y no publiques credenciales en el repositorio.
 
+## Docker
+
+Requiere Docker Engine y Docker Compose v2. La imagen usa PHP 8.2 con Apache, PDO MySQL y mbstring. El Compose incluye MariaDB 10.11, una red interna y un volumen persistente. La imagen genera `api/config.php` desde el ejemplo y toma las credenciales por variables de entorno; tu configuración local no se copia. No requiere Composer ni Node dentro del contenedor.
+
+1. Copia `.env.example` a `.env`.
+2. Genera el hash de la clave:
+
+   ```powershell
+   php -r "echo password_hash('NuevaClaveFuerte', PASSWORD_DEFAULT), PHP_EOL;"
+   ```
+
+3. Edita `.env` y define `DEUDA_AUTH_PASS_HASH`, `DEUDA_DB_PASS` y `MARIADB_ROOT_PASSWORD`. Usa comillas simples para evitar problemas con los `$` del hash.
+4. Para cargar datos en la primera ejecución, exporta la tabla y guarda el archivo como `sql/init/10-deudaprotegida.sql`:
+
+   ```powershell
+   C:\xampp1\mysql\bin\mysqldump.exe -u root --single-transaction --default-character-set=utf8mb4 totemly datos_deudaprotegida > sql/init/10-deudaprotegida.sql
+   ```
+
+5. Levanta los contenedores:
+
+   ```bash
+   docker compose up -d --build
+   ```
+
+6. Abre `http://127.0.0.1:8080`. El puerto se puede cambiar con `APP_PORT`.
+
+En un VPS, `127.0.0.1:8080` no es accesible desde tu equipo: publica el panel mediante un proxy inverso con TLS o un túnel SSH. Si el proxy inverso es otro contenedor, conéctalo a la red de Compose o ajusta `APP_BIND`.
+
+Comandos útiles:
+
+```bash
+docker compose logs -f app
+docker compose down
+docker compose down -v
+docker compose up -d --build
+```
+
+`docker compose down` conserva la base de datos. `docker compose down -v` elimina el volumen y los datos. Los scripts de `sql/init` solo se ejecutan cuando el volumen se inicializa por primera vez.
+
+`sql/init/00-permissions.sql` deja al usuario de la aplicación con permisos de solo lectura. Los dumps `sql/init/*.sql` están excluidos de Git para evitar publicar datos personales. Para un VPS, coloca un proxy inverso con TLS (Caddy, Nginx o Traefik) delante del puerto `8080`; MariaDB no se expone al exterior.
+
 ## Estructura
 
 ```text
@@ -74,6 +116,10 @@ deudaprotegida/
 ├─ dashboard.php
 ├─ login.php
 ├─ logout.php
+├─ Dockerfile
+├─ docker-compose.yml
+├─ docker/
+│  └─ apache.conf
 ├─ api/
 │  ├─ auth.php
 │  ├─ bootstrap.php
@@ -94,9 +140,15 @@ deudaprotegida/
 │  ├─ js/format.js
 │  └─ vendor/apexcharts.min.js
 ├─ sql/
+│  ├─ init/
+│  │  ├─ .gitkeep
+│  │  └─ 00-permissions.sql
 │  ├─ analytics.sql
 │  └─ indexes.sql
+├─ composer.json
 ├─ tailwind.config.js
+├─ .dockerignore
+├─ .env.example
 ├─ .gitignore
 └─ .htaccess
 ```
@@ -186,6 +238,7 @@ El panel muestra datos personales (nombre, RUT y teléfono). Antes de exponerlo 
 - Restringe el acceso a la carpeta y a `api/config.php`.
 - Usa un usuario MySQL de solo lectura.
 - Mantén `DEUDA_DEBUG=false`.
+- No publiques `.env`; ya está excluido por `.gitignore`.
 - Revisa la retención y el tratamiento de datos según la normativa aplicable.
 
 `.htaccess` bloquea el listado de directorios, archivos SQL/Markdown y el acceso web directo a los archivos internos de `api`, además de agregar cabeceras de seguridad. Requiere `AllowOverride` habilitado en Apache.
@@ -195,6 +248,7 @@ El panel muestra datos personales (nombre, RUT y teléfono). Antes de exponerlo 
 - `php -l` sin errores en todos los archivos PHP.
 - Login, logout, CSRF, bloqueo tras 5 intentos y cookies de sesión verificados con Chrome headless.
 - Acceso a `dashboard.php` y a todas las APIs sin sesión redirige al login o responde `401`; el frontend redirige al login cuando expira la sesión.
+- `docker compose config` validado y Dockerfile revisado con `dockerfilelint`.
 - Endpoints probados con respuestas 200 en overview, leads, filtros, búsqueda, paginación, histórico y exportación; respuestas 422 en fechas invertidas y filtros inválidos.
 - Navegación real con Chrome headless: sin errores de JavaScript, dos gráficos renderizados, tabla con datos, tema claro/oscuro y menú móvil funcional.
 - CSS compilado con Tailwind 3.4.16, sin warning de CDN en consola.

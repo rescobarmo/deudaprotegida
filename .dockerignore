@@ -1,0 +1,15 @@
+.git
+.gitignore
+.dockerignore
+Dockerfile
+docker-compose.yml
+.env
+.env.*
+api/config.php
+*.log
+node_modules
+/vendor
+README.md
+composer.json
+tailwind.config.js
+/sql

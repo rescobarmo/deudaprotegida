@@ -1,0 +1,48 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${APP_BIND:-127.0.0.1}:${APP_PORT:-8080}:80"
+    environment:
+      DEUDA_DB_HOST: db
+      DEUDA_DB_PORT: "3306"
+      DEUDA_DB_NAME: totemly
+      DEUDA_DB_USER: deuda_app
+      DEUDA_DB_PASS: ${DEUDA_DB_PASS:?Define DEUDA_DB_PASS en .env}
+      DEUDA_AUTH_USER: ${DEUDA_AUTH_USER:-admin}
+      DEUDA_AUTH_PASS_HASH: ${DEUDA_AUTH_PASS_HASH:?Define DEUDA_AUTH_PASS_HASH en .env}
+      DEUDA_DEBUG: "false"
+      DEUDA_TIMEZONE: America/Santiago
+      TZ: America/Santiago
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(@fsockopen('127.0.0.1', 80) ? 0 : 1);"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  db:
+    image: mariadb:10.11
+    environment:
+      MARIADB_DATABASE: totemly
+      MARIADB_USER: deuda_app
+      MARIADB_PASSWORD: ${DEUDA_DB_PASS:?Define DEUDA_DB_PASS en .env}
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:?Define MARIADB_ROOT_PASSWORD en .env}
+      TZ: America/Santiago
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./sql/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  db_data:
