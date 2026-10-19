@@ -105,15 +105,6 @@ export function formatTime(date = new Date()) {
   return date.toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" });
 }
 
-export function formatRut(raw) {
-  const source = String(raw ?? "").trim();
-  if (!source) return "—";
-  const cleaned = source.replace(/\./g, "").replace(/-/g, "").replace(/\s+/g, "");
-  const match = cleaned.match(/^(\d{1,2})(\d{3})(\d{3})([0-9kK])$/);
-  if (!match) return source;
-  return `${match[1]}.${match[2]}.${match[3]}-${match[4].toUpperCase()}`;
-}
-
 export function normalizePhone(raw) {
   return String(raw ?? "").replace(/\D/g, "");
 }
@@ -145,7 +136,7 @@ export function whatsappLink(raw) {
 export function statusTone(value) {
   const text = String(value ?? "").trim();
   if (!text) return "status-neutral";
-  if (/aprob|activo|vigente|complet|exitos|ganad|^si$|^1$/i.test(text)) return "status-positive";
+  if (/aprob|activo|vigente|complet|exitos|ganad|^s[ií]$|^1$/i.test(text)) return "status-positive";
   if (/rechaz|inactiv|anulad|perdid|error|^no$|^0$/i.test(text)) return "status-negative";
   if (/pend|espera|revis|proceso|gestion|contact/i.test(text)) return "status-warning";
   return "status-neutral";
@@ -153,7 +144,7 @@ export function statusTone(value) {
 
 export function statusLabel(value) {
   const text = String(value ?? "").trim();
-  return text || "Sin estado";
+  return text || "Sin dato";
 }
 
 export function initials(name) {

@@ -40,11 +40,11 @@ $calendarParams = [
 ];
 
 if ($bucket === 'all') {
-    $historical = db_one("SELECT COUNT(*) AS total, COUNT(DISTINCT TRIM(id)) AS clientes FROM {$table}")
+    $historical = db_one("SELECT COUNT(*) AS total, COUNT(DISTINCT id) AS clientes FROM {$table}")
         ?? ['total' => 0, 'clientes' => 0];
 
     $period = db_one(
-        "SELECT COUNT(*) AS total, COUNT(DISTINCT TRIM(id)) AS clientes
+        "SELECT COUNT(*) AS total, COUNT(DISTINCT id) AS clientes
          FROM {$table}
          WHERE fecha BETWEEN :period_from AND :period_to",
         [':period_from' => $range['from'], ':period_to' => $range['to']]
@@ -147,7 +147,7 @@ $periodKeyExpression = $granularity === 'day'
 
 if ($bucket === 'all') {
     $trendRows = db_all(
-        "SELECT {$periodKeyExpression} AS periodo, COUNT(*) AS total, COUNT(DISTINCT TRIM(t.id)) AS clientes
+        "SELECT {$periodKeyExpression} AS periodo, COUNT(*) AS total, COUNT(DISTINCT t.id) AS clientes
          FROM {$table} t
          WHERE t.fecha BETWEEN :trend_from AND :trend_to
          GROUP BY periodo

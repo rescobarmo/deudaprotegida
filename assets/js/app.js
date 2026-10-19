@@ -8,7 +8,6 @@ import {
   formatNumber,
   formatPercent,
   formatPhone,
-  formatRut,
   formatTime,
   formatWeekday,
   initials,
@@ -37,7 +36,7 @@ const state = {
   granularity: "auto",
   table: {
     q: "",
-    rut: "",
+    id: "",
     page: 1,
     perPage: 10,
     sort: "fecha",
@@ -155,7 +154,7 @@ function leadsParams() {
     page: state.table.page,
     per_page: state.table.perPage,
     q: state.table.q,
-    rut: state.table.rut,
+    id: state.table.id,
     sort: state.table.sort,
     dir: state.table.dir,
   };
@@ -485,7 +484,7 @@ function renderLeads(data) {
 function renderTableError(message) {
   const row = el("tr");
   const cell = el("td", "text-center");
-  cell.colSpan = 5;
+  cell.colSpan = 6;
   const wrapper = el("div", "empty-state");
   wrapper.appendChild(icon("alert", ""));
   wrapper.appendChild(el("strong", "", "No pudimos cargar los leads"));
@@ -502,17 +501,17 @@ function renderTableError(message) {
 function renderEmptyRow(meta) {
   const row = el("tr");
   const cell = el("td", "text-center");
-  cell.colSpan = 5;
+  cell.colSpan = 6;
   const wrapper = el("div", "empty-state");
   wrapper.appendChild(icon("search", ""));
-  const hasFilters = Boolean(state.table.q || state.table.rut);
+  const hasFilters = Boolean(state.table.q || state.table.id);
   wrapper.appendChild(el("strong", "", hasFilters ? "No encontramos leads" : "Sin leads en el período"));
   wrapper.appendChild(
     el(
       "p",
       "",
       hasFilters
-        ? "Prueba con otro nombre, RUT o amplía el rango de fechas."
+        ? "Prueba con otro nombre, ID o amplía el rango de fechas."
         : "Ajusta los filtros globales o selecciona otro período para ver resultados."
     )
   );
@@ -538,7 +537,7 @@ function renderLeadRow(lead) {
   const name = el("p", "truncate font-semibold text-slate-900 dark:text-slate-100", lead.nombre || "Sin nombre");
   name.title = lead.nombre || "Sin nombre";
   clientText.appendChild(name);
-  clientText.appendChild(el("p", "mono mt-0.5 text-xs text-slate-500 dark:text-slate-400", formatRut(lead.id)));
+  clientText.appendChild(el("p", "mono mt-0.5 text-xs text-slate-500 dark:text-slate-400", lead.id !== null && lead.id !== undefined ? `ID ${lead.id}` : "ID —"));
   client.appendChild(avatar);
   client.appendChild(clientText);
   clientCell.appendChild(client);
@@ -569,13 +568,19 @@ function renderLeadRow(lead) {
   montoCell.appendChild(rawMonto);
   row.appendChild(montoCell);
 
-  const statusCell = el("td");
-  const status = el("span", `status-badge ${statusTone(lead.otro)}`);
-  status.title = statusLabel(lead.otro);
-  status.appendChild(el("span", "status-dot"));
-  status.appendChild(el("span", "", statusLabel(lead.otro)));
-  statusCell.appendChild(status);
-  row.appendChild(statusCell);
+  const judicialCell = el("td");
+  const judicial = el("span", `status-badge ${statusTone(lead.judicializado)}`);
+  judicial.title = statusLabel(lead.judicializado);
+  judicial.appendChild(el("span", "status-dot"));
+  judicial.appendChild(el("span", "", statusLabel(lead.judicializado)));
+  judicialCell.appendChild(judicial);
+  row.appendChild(judicialCell);
+
+  const incomeCell = el("td");
+  const income = el("span", "block max-w-36 truncate text-xs font-medium text-slate-600 dark:text-slate-300", lead.ingresos || "—");
+  income.title = lead.ingresos || "Sin ingresos";
+  incomeCell.appendChild(income);
+  row.appendChild(incomeCell);
 
   const dateCell = el("td");
   const date = el("div", "flex flex-col");
@@ -643,10 +648,10 @@ function pageList(current, total) {
 
 function clearTableFilters() {
   state.table.q = "";
-  state.table.rut = "";
+  state.table.id = "";
   state.table.page = 1;
   $("search-name").value = "";
-  $("search-rut").value = "";
+  $("search-id").value = "";
   loadLeads();
 }
 
@@ -654,7 +659,7 @@ function clearAllFilters() {
   state.granularity = "auto";
   state.table = {
     q: "",
-    rut: "",
+    id: "",
     page: 1,
     perPage: 10,
     sort: "fecha",
@@ -662,7 +667,7 @@ function clearAllFilters() {
   };
   $("monto").value = "all";
   $("search-name").value = "";
-  $("search-rut").value = "";
+  $("search-id").value = "";
   $("per-page").value = "10";
   updateGranularityButtons("day");
   setPreset("30d", { fetch: false });
@@ -678,7 +683,7 @@ function exportCsv() {
   const params = {
     ...rangeParams(),
     q: state.table.q,
-    rut: state.table.rut,
+    id: state.table.id,
   };
   window.location.href = buildExportUrl(params);
 }
@@ -788,14 +793,14 @@ function bindEvents() {
     loadLeads();
   }, 350);
 
-  const debouncedRut = debounce(() => {
-    state.table.rut = $("search-rut").value.trim();
+  const debouncedId = debounce(() => {
+    state.table.id = $("search-id").value.trim();
     state.table.page = 1;
     loadLeads();
   }, 350);
 
   $("search-name").addEventListener("input", debouncedName);
-  $("search-rut").addEventListener("input", debouncedRut);
+  $("search-id").addEventListener("input", debouncedId);
   $("per-page").addEventListener("change", (event) => {
     state.table.perPage = Number(event.target.value);
     state.table.page = 1;

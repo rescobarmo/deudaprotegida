@@ -433,7 +433,7 @@ html.dark .monto-badge {
 
 .lead-table {
   width: 100%;
-  min-width: 780px;
+  min-width: 980px;
   border-collapse: separate;
   border-spacing: 0;
 }
@@ -684,7 +684,7 @@ html.dark .toast.is-success {
 
 @media (max-width: 640px) {
   .lead-table {
-    min-width: 720px;
+    min-width: 920px;
   }
 
   .kpi-value {

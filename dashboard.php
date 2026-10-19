@@ -369,7 +369,7 @@ $authCsrf = csrf_token();
               <div>
                 <p class="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">Evolución temporal</p>
                 <h2 class="display mt-1 text-lg font-extrabold">Tendencia de leads</h2>
-                <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Ingresos y clientes únicos por día o mes.</p>
+                <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Leads y clientes únicos por día o mes.</p>
               </div>
               <div class="segmented" role="group" aria-label="Granularidad de la tendencia">
                 <button type="button" data-granularity="day" aria-pressed="true">Diario</button>
@@ -422,7 +422,7 @@ $authCsrf = csrf_token();
             <div class="flex flex-wrap items-center gap-2.5">
               <div>
                 <h2 id="leads-title" class="display text-lg font-extrabold">Leads recientes</h2>
-                <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Busca por nombre o RUT y revisa el detalle del flujo.</p>
+                <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Busca por nombre o ID y revisa el detalle del flujo.</p>
               </div>
               <span id="leads-count" class="chip">Cargando…</span>
             </div>
@@ -437,8 +437,8 @@ $authCsrf = csrf_token();
               <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"><use href="#i-search"></use></svg>
               <input id="search-name" type="search" class="field" style="padding-left:2.25rem" placeholder="Buscar nombre" aria-label="Buscar por nombre">
             </div>
-            <div class="w-40">
-              <input id="search-rut" type="search" class="field" placeholder="RUT" aria-label="Filtrar por RUT">
+            <div class="w-32">
+              <input id="search-id" type="search" class="field" placeholder="ID" aria-label="Filtrar por ID">
             </div>
             <div class="w-28">
               <select id="per-page" class="field" aria-label="Registros por página">
@@ -470,8 +470,14 @@ $authCsrf = csrf_token();
                   </button>
                 </th>
                 <th scope="col" aria-sort="none">
-                  <button type="button" class="sort-button" data-sort="estado">
-                    Estado
+                  <button type="button" class="sort-button" data-sort="judicializado">
+                    Judicializado
+                    <span class="sort-indicator">↕</span>
+                  </button>
+                </th>
+                <th scope="col" aria-sort="none">
+                  <button type="button" class="sort-button" data-sort="ingresos">
+                    Ingresos
                     <span class="sort-indicator">↕</span>
                   </button>
                 </th>
@@ -489,6 +495,7 @@ $authCsrf = csrf_token();
                 <td><div class="skeleton h-3 w-24"></div></td>
                 <td><div class="space-y-1.5"><div class="skeleton h-5 w-24 rounded-md"></div><div class="skeleton h-2.5 w-32"></div></div></td>
                 <td><div class="skeleton h-5 w-20 rounded-full"></div></td>
+                <td><div class="skeleton h-3 w-20"></div></td>
                 <td><div class="space-y-1.5"><div class="skeleton h-3 w-20"></div><div class="skeleton h-2.5 w-10"></div></div></td>
               </tr>
               <tr>
@@ -496,6 +503,7 @@ $authCsrf = csrf_token();
                 <td><div class="skeleton h-3 w-24"></div></td>
                 <td><div class="space-y-1.5"><div class="skeleton h-5 w-20 rounded-md"></div><div class="skeleton h-2.5 w-28"></div></div></td>
                 <td><div class="skeleton h-5 w-24 rounded-full"></div></td>
+                <td><div class="skeleton h-3 w-24"></div></td>
                 <td><div class="space-y-1.5"><div class="skeleton h-3 w-20"></div><div class="skeleton h-2.5 w-10"></div></div></td>
               </tr>
               <tr>
@@ -503,6 +511,7 @@ $authCsrf = csrf_token();
                 <td><div class="skeleton h-3 w-24"></div></td>
                 <td><div class="space-y-1.5"><div class="skeleton h-5 w-24 rounded-md"></div><div class="skeleton h-2.5 w-32"></div></div></td>
                 <td><div class="skeleton h-5 w-20 rounded-full"></div></td>
+                <td><div class="skeleton h-3 w-16"></div></td>
                 <td><div class="space-y-1.5"><div class="skeleton h-3 w-20"></div><div class="skeleton h-2.5 w-10"></div></div></td>
               </tr>
               <tr>
@@ -510,13 +519,7 @@ $authCsrf = csrf_token();
                 <td><div class="skeleton h-3 w-24"></div></td>
                 <td><div class="space-y-1.5"><div class="skeleton h-5 w-20 rounded-md"></div><div class="skeleton h-2.5 w-24"></div></div></td>
                 <td><div class="skeleton h-5 w-24 rounded-full"></div></td>
-                <td><div class="space-y-1.5"><div class="skeleton h-3 w-20"></div><div class="skeleton h-2.5 w-10"></div></div></td>
-              </tr>
-              <tr>
-                <td><div class="flex items-center gap-3"><div class="skeleton h-9 w-9 rounded-xl"></div><div class="space-y-1.5"><div class="skeleton h-3 w-28"></div><div class="skeleton h-2.5 w-16"></div></div></div></td>
-                <td><div class="skeleton h-3 w-24"></div></td>
-                <td><div class="space-y-1.5"><div class="skeleton h-5 w-24 rounded-md"></div><div class="skeleton h-2.5 w-28"></div></div></td>
-                <td><div class="skeleton h-5 w-20 rounded-full"></div></td>
+                <td><div class="skeleton h-3 w-20"></div></td>
                 <td><div class="space-y-1.5"><div class="skeleton h-3 w-20"></div><div class="skeleton h-2.5 w-10"></div></div></td>
               </tr>
             </tbody>

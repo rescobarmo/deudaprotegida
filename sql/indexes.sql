@@ -1,4 +1,3 @@
-ALTER TABLE `datos_deudaprotegina`
+ALTER TABLE `datos_deudaprotegida`
   ADD INDEX `idx_dp_fecha` (`fecha`),
-  ADD INDEX `idx_dp_nombre` (`nombre`),
-  ADD INDEX `idx_dp_otro` (`otro`);
+  ADD INDEX `idx_dp_nombre` (`nombre`);

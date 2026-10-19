@@ -17,9 +17,7 @@ return [
         'charset' => 'utf8mb4',
     ],
     'table_candidates' => array_values(array_filter([
-        getenv('DEUDA_TABLE') ?: null,
-        'datos_deudaprotegida',
-        'datos_deudaprotegina',
+        getenv('DEUDA_TABLE') ?: 'datos_deudaprotegida',
     ])),
     'timezone' => getenv('DEUDA_TIMEZONE') ?: 'America/Santiago',
     'debug' => filter_var(getenv('DEUDA_DEBUG') ?: 'false', FILTER_VALIDATE_BOOLEAN),

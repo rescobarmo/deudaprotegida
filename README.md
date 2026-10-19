@@ -19,19 +19,19 @@ Panel analítico gerencial conectado a MySQL (`totemly`) para explorar leads, mo
 
 La autenticación se explica en la sección siguiente. También puedes desplegar con Docker usando la sección **Docker**.
 
-La tabla se detecta automáticamente. El requerimiento indicaba `datos_deudaprotegida`, pero la base local contiene `datos_deudaprotegina`; el backend intenta, en orden:
+La tabla por defecto es `datos_deudaprotegida`; se puede cambiar con la variable `DEUDA_TABLE`.
 
-1. `DEUDA_TABLE` (variable de entorno).
-2. `datos_deudaprotegida`.
-3. `datos_deudaprotegina`.
+## Esquema
 
-Si prefieres exponer el nombre original del requerimiento, crea una vista:
-
-```sql
-CREATE OR REPLACE VIEW `datos_deudaprotegida` AS
-SELECT `id`, `nombre`, `numero`, `monto`, `otro`, `fecha`
-FROM `datos_deudaprotegina`;
-```
+| Campo | Tipo | Uso en el panel |
+| --- | --- | --- |
+| `id` | `int` | Identificador del lead y búsqueda por ID. |
+| `nombre` | `varchar(200)` | Nombre del cliente y búsqueda. |
+| `numero` | `varchar(200)` | Contacto y enlace a WhatsApp. |
+| `monto` | `varchar(200)` | Rango de monto y distribución. |
+| `judicializado` | `varchar(200)` | Estado de judicialización. |
+| `ingresos` | `varchar(200)` | Valor o detalle de ingresos. |
+| `fecha` | `date` | Filtros y tendencia temporal. |
 
 ## Autenticación
 
@@ -56,7 +56,7 @@ Edita `api/config.php` o define variables de entorno en Apache/Windows:
 | `DEUDA_DB_NAME` | `totemly` |
 | `DEUDA_DB_USER` | `root` |
 | `DEUDA_DB_PASS` | vacío |
-| `DEUDA_TABLE` | autodetección |
+| `DEUDA_TABLE` | `datos_deudaprotegida` |
 | `DEUDA_TIMEZONE` | `America/Santiago` |
 | `DEUDA_DEBUG` | `false` |
 | `DEUDA_AUTH_USER` | `admin` |
@@ -186,10 +186,10 @@ Devuelve KPIs históricos y del período, comparación con el período anterior,
 | --- | --- |
 | `from`, `to`, `all`, `monto` | Mismos filtros globales. |
 | `q` | Búsqueda parcial por `nombre`. |
-| `rut` | Búsqueda parcial por `id`. |
+| `id` | Búsqueda parcial por ID. |
 | `page` | Página, desde 1. |
 | `per_page` | 1 a 100. Por defecto 10. |
-| `sort` | `fecha`, `nombre`, `id`, `monto`, `estado`. |
+| `sort` | `fecha`, `nombre`, `id`, `monto`, `judicializado`, `ingresos`. |
 | `dir` | `asc` o `desc`. |
 
 La paginación se resuelve en SQL y devuelve `meta.total`, `meta.pages`, etc.
@@ -209,15 +209,15 @@ Aplica los mismos filtros de `leads.php` sin paginación, con un máximo de 50.0
 - Distribución por rangos de monto con porcentaje.
 - Top de valores de `monto` registrados.
 - Leads recientes.
-- Controles de calidad: montos no interpretables, RUT repetidos, teléfonos inválidos, registros sin estado y fechas futuras.
+- Controles de calidad: montos no interpretables, IDs repetidos, teléfonos inválidos, registros sin judicialización o ingresos y fechas futuras.
 
 El parser de montos soporta formatos como `$30.000.000_–_$50.000.000`, `$30.000.000_?_$50.000.000` y montos únicos. Extrae el primer y último grupo numérico del texto; para grandes volúmenes conviene persistir un monto normalizado en columnas propias.
 
 ## Rendimiento
 
-- La tabla actual tiene clave primaria `(id, fecha)`. Ejecuta una vez `sql/indexes.sql` para agregar índices por `fecha`, `nombre` y `otro`.
+- Ejecuta una vez `sql/indexes.sql` para agregar índices por `fecha` y `nombre`.
 - Todas las consultas usan PDO con parámetros enlazados y límites validados.
-- La búsqueda por nombre/RUT usa `LIKE '%texto%'`, que no aprovecha índices; para volúmenes altos considera búsqueda por prefijo o un índice full-text.
+- La búsqueda por nombre/ID usa `LIKE '%texto%'`, que no aprovecha índices; para volúmenes altos considera búsqueda por prefijo o un índice full-text.
 - La tabla se pagina en servidor (máximo 100 filas por página).
 - La exportación está limitada a 50.000 filas para proteger la memoria del servidor.
 
@@ -228,7 +228,7 @@ El parser de montos soporta formatos como `$30.000.000_–_$50.000.000`, `$30.00
 - Tendencia de leads y clientes únicos con granularidad diaria/mensual.
 - Distribución donut con leyenda, conteos y porcentajes.
 - Filtros de rango: últimos 7/30/90 días, mes actual, mes anterior, histórico completo o fechas personalizadas.
-- Tabla con búsqueda por nombre, filtro por RUT, ordenamiento, paginación, enlaces a WhatsApp y exportación CSV.
+- Tabla con búsqueda por nombre, filtro por ID, ordenamiento, paginación, enlaces a WhatsApp y exportación CSV.
 - Estados de carga, vacío y error; tema claro/oscuro persistente; diseño responsive y accesible.
 
 ## Tailwind
@@ -241,7 +241,7 @@ npx tailwindcss@3.4.16 -c tailwind.config.js -i assets/css/tailwind.input.css -o
 
 ## Seguridad y privacidad
 
-El panel muestra datos personales (nombre, RUT y teléfono). Antes de exponerlo fuera de localhost:
+El panel muestra datos personales (nombre, ID y teléfono). Antes de exponerlo fuera de localhost:
 
 - Cambia la clave inicial y usa una clave larga y única.
 - Publica el panel bajo HTTPS; la cookie de sesión se marca `Secure` automáticamente cuando detecta HTTPS.

@@ -14,9 +14,9 @@ $all = param_bool('all');
 $range = resolve_range($bucket, $from, $to, $all);
 
 $q = mb_substr(param_string('q', '') ?? '', 0, 100);
-$rut = mb_substr(param_string('rut', '') ?? '', 0, 30);
+$id = mb_substr(param_string('id', '') ?? '', 0, 30);
 
-$parts = leads_query_parts($bucket, $range['from'], $range['to'], $q, $rut);
+$parts = leads_query_parts($bucket, $range['from'], $range['to'], $q, $id);
 $countRow = db_one(
     "SELECT COUNT(*) AS total
      FROM ({$parts['source']}) t
@@ -30,7 +30,7 @@ if ($total > 50000) {
 
 $bucketExpression = monto_bucket_expr('t');
 $rows = db_all(
-    "SELECT t.id, t.nombre, t.numero, t.monto, t.otro, t.fecha,
+    "SELECT t.id, t.nombre, t.numero, t.monto, t.judicializado, t.ingresos, t.fecha,
             {$bucketExpression} AS monto_bucket
      FROM ({$parts['source']}) t
      WHERE {$parts['where']}
@@ -51,7 +51,7 @@ if ($output === false) {
 fwrite($output, "\xEF\xBB\xBF");
 
 $buckets = monto_buckets();
-$header = ['RUT', 'Nombre', 'WhatsApp', 'Monto', 'Rango', 'Estado', 'Fecha'];
+$header = ['ID', 'Nombre', 'WhatsApp', 'Monto', 'Rango', 'Judicializado', 'Ingresos', 'Fecha'];
 fputcsv($output, $header, ';', '"', '');
 
 $sanitize = static function (?string $value): string {
@@ -65,12 +65,13 @@ $sanitize = static function (?string $value): string {
 foreach ($rows as $row) {
     $bucketKey = (string) $row['monto_bucket'];
     fputcsv($output, [
-        $sanitize(trim((string) $row['id'])),
+        $sanitize((string) (int) $row['id']),
         $sanitize(trim((string) $row['nombre'])),
         $sanitize(trim((string) $row['numero'])),
         $sanitize(trim((string) $row['monto'])),
         $buckets[$bucketKey]['label'] ?? 'Sin monto',
-        $sanitize($row['otro'] === null ? '' : trim((string) $row['otro'])),
+        $sanitize(trim((string) $row['judicializado'])),
+        $sanitize(trim((string) $row['ingresos'])),
         $sanitize(trim((string) $row['fecha'])),
     ], ';', '"', '');
 }

@@ -179,11 +179,12 @@ function source_sql(?string $from = null, ?string $to = null): array
     }
 
     $sql = "SELECT
-                   TRIM(d.id) AS id,
+                   d.id AS id,
                    TRIM(d.nombre) AS nombre,
                    TRIM(d.numero) AS numero,
                    TRIM(d.monto) AS monto,
-                   TRIM(d.otro) AS otro,
+                   TRIM(d.judicializado) AS judicializado,
+                   TRIM(d.ingresos) AS ingresos,
                    d.fecha,
                    " . monto_min_expr('d') . " AS monto_min,
                    " . monto_max_expr('d') . " AS monto_max
@@ -270,7 +271,7 @@ function like_escape(string $value): string
     return str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $value);
 }
 
-function leads_query_parts(string $bucket, string $from, string $to, string $q = '', string $rut = ''): array
+function leads_query_parts(string $bucket, string $from, string $to, string $q = '', string $id = ''): array
 {
     $source = source_sql($from, $to);
     $where = [monto_bucket_condition($bucket)];
@@ -281,12 +282,9 @@ function leads_query_parts(string $bucket, string $from, string $to, string $q =
         $params[':q'] = '%' . like_escape($q) . '%';
     }
 
-    if ($rut !== '') {
-        $rutDigits = preg_replace('/[^0-9kK]/', '', $rut);
-        $where[] = "(t.id LIKE :rut ESCAPE '!'
-                     OR REPLACE(REPLACE(REPLACE(t.id, '.', ''), '-', ''), ' ', '') LIKE :rut_digits ESCAPE '!')";
-        $params[':rut'] = '%' . like_escape($rut) . '%';
-        $params[':rut_digits'] = '%' . like_escape((string) $rutDigits) . '%';
+    if ($id !== '') {
+        $where[] = "CAST(t.id AS CHAR) LIKE :lead_id ESCAPE '!'";
+        $params[':lead_id'] = '%' . like_escape($id) . '%';
     }
 
     return [

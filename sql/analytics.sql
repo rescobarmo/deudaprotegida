@@ -9,13 +9,13 @@ SELECT
   MIN(fecha) AS primera_fecha,
   MAX(fecha) AS ultima_fecha,
   ROUND(COUNT(*) / GREATEST(DATEDIFF(MAX(fecha), MIN(fecha)) + 1, 1), 2) AS promedio_diario
-FROM datos_deudaprotegina;
+FROM datos_deudaprotegida;
 
 SELECT
   fecha,
   COUNT(*) AS leads,
   COUNT(DISTINCT id) AS clientes_unicos
-FROM datos_deudaprotegina
+FROM datos_deudaprotegida
 WHERE fecha BETWEEN @desde AND @hasta
 GROUP BY fecha
 ORDER BY fecha;
@@ -32,7 +32,7 @@ agregado AS (
     fecha,
     COUNT(*) AS leads,
     COUNT(DISTINCT id) AS clientes_unicos
-  FROM datos_deudaprotegina
+  FROM datos_deudaprotegida
   WHERE fecha BETWEEN @desde AND @hasta
   GROUP BY fecha
 )
@@ -48,7 +48,7 @@ WITH diario AS (
   SELECT
     fecha,
     COUNT(*) AS leads
-  FROM datos_deudaprotegina
+  FROM datos_deudaprotegida
   WHERE fecha BETWEEN @desde AND @hasta
   GROUP BY fecha
 )
@@ -63,7 +63,7 @@ SELECT
   DATE_FORMAT(fecha, '%Y-%m-01') AS mes,
   COUNT(*) AS leads,
   COUNT(DISTINCT id) AS clientes_unicos
-FROM datos_deudaprotegina
+FROM datos_deudaprotegida
 WHERE fecha BETWEEN @desde AND @hasta
 GROUP BY DATE_FORMAT(fecha, '%Y-%m-01')
 ORDER BY mes;
@@ -72,7 +72,7 @@ WITH mensual AS (
   SELECT
     DATE_FORMAT(fecha, '%Y-%m-01') AS mes,
     COUNT(*) AS leads
-  FROM datos_deudaprotegina
+  FROM datos_deudaprotegida
   GROUP BY DATE_FORMAT(fecha, '%Y-%m-01')
 )
 SELECT
@@ -91,7 +91,7 @@ WITH base AS (
     id,
     fecha,
     TRIM(BOTH '|' FROM REGEXP_REPLACE(REPLACE(monto, '.', ''), '[^0-9]+', '|')) AS monto_normalizado
-  FROM datos_deudaprotegina
+  FROM datos_deudaprotegida
   WHERE fecha BETWEEN @desde AND @hasta
 ),
 rangos AS (
@@ -121,7 +121,7 @@ SELECT
   monto,
   COUNT(*) AS leads,
   COUNT(DISTINCT id) AS clientes_unicos
-FROM datos_deudaprotegina
+FROM datos_deudaprotegida
 WHERE fecha BETWEEN @desde AND @hasta
 GROUP BY monto
 ORDER BY leads DESC, monto
@@ -132,9 +132,10 @@ SELECT
   nombre,
   numero,
   monto,
-  otro,
+  judicializado,
+  ingresos,
   fecha
-FROM datos_deudaprotegina
+FROM datos_deudaprotegida
 WHERE fecha BETWEEN @desde AND @hasta
 ORDER BY fecha DESC, id ASC
 LIMIT 50;
@@ -145,7 +146,7 @@ SELECT
   numero,
   monto,
   fecha
-FROM datos_deudaprotegina
+FROM datos_deudaprotegida
 WHERE TRIM(BOTH '|' FROM REGEXP_REPLACE(REPLACE(monto, '.', ''), '[^0-9]+', '|')) = ''
 ORDER BY fecha DESC
 LIMIT 50;
@@ -154,7 +155,7 @@ SELECT
   id,
   COUNT(*) AS registros,
   COUNT(DISTINCT fecha) AS fechas_distintas
-FROM datos_deudaprotegina
+FROM datos_deudaprotegida
 GROUP BY id
 HAVING COUNT(*) > 1
 ORDER BY registros DESC;
@@ -164,22 +165,24 @@ SELECT
   nombre,
   numero,
   fecha
-FROM datos_deudaprotegina
+FROM datos_deudaprotegida
 WHERE numero NOT REGEXP '^[0-9+() -]{8,25}$'
    OR numero IS NULL
 ORDER BY fecha DESC
 LIMIT 100;
 
 SELECT
-  SUM(otro IS NULL OR TRIM(otro) = '') AS sin_estado,
+  SUM(judicializado IS NULL OR TRIM(judicializado) = '') AS sin_judicializado,
+  SUM(ingresos IS NULL OR TRIM(ingresos) = '') AS sin_ingresos,
   COUNT(*) AS total,
-  ROUND(100 * SUM(otro IS NULL OR TRIM(otro) = '') / COUNT(*), 1) AS sin_estado_pct
-FROM datos_deudaprotegina;
+  ROUND(100 * SUM(judicializado IS NULL OR TRIM(judicializado) = '') / COUNT(*), 1) AS sin_judicializado_pct,
+  ROUND(100 * SUM(ingresos IS NULL OR TRIM(ingresos) = '') / COUNT(*), 1) AS sin_ingresos_pct
+FROM datos_deudaprotegida;
 
 SELECT
   id,
   nombre,
   fecha
-FROM datos_deudaprotegina
+FROM datos_deudaprotegida
 WHERE fecha > CURDATE()
 ORDER BY fecha;

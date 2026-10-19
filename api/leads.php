@@ -14,7 +14,7 @@ $all = param_bool('all');
 $range = resolve_range($bucket, $from, $to, $all);
 
 $q = mb_substr(param_string('q', '') ?? '', 0, 100);
-$rut = mb_substr(param_string('rut', '') ?? '', 0, 30);
+$id = mb_substr(param_string('id', '') ?? '', 0, 30);
 $page = param_int('page', 1, 1, 100000);
 $perPage = param_int('per_page', 10, 1, 100);
 
@@ -26,7 +26,8 @@ $sortColumns = [
     'nombre' => 't.nombre',
     'id' => 't.id',
     'monto' => 't.monto_max',
-    'estado' => 't.otro',
+    'judicializado' => 't.judicializado',
+    'ingresos' => 't.ingresos',
 ];
 if (!array_key_exists($sort, $sortColumns)) {
     fail('Criterio de orden inválido.', 422);
@@ -35,7 +36,7 @@ if (!in_array($direction, ['asc', 'desc'], true)) {
     fail('Dirección de orden inválida.', 422);
 }
 
-$parts = leads_query_parts($bucket, $range['from'], $range['to'], $q, $rut);
+$parts = leads_query_parts($bucket, $range['from'], $range['to'], $q, $id);
 
 $countRow = db_one(
     "SELECT COUNT(*) AS total
@@ -55,7 +56,7 @@ $orderBy = $sortColumns[$sort] . ' ' . strtoupper($direction) . ', t.id ASC';
 $bucketExpression = monto_bucket_expr('t');
 
 $rows = db_all(
-    "SELECT t.id, t.nombre, t.numero, t.monto, t.otro, t.fecha, t.monto_min, t.monto_max,
+    "SELECT t.id, t.nombre, t.numero, t.monto, t.judicializado, t.ingresos, t.fecha, t.monto_min, t.monto_max,
             {$bucketExpression} AS monto_bucket
      FROM ({$parts['source']}) t
      WHERE {$parts['where']}
@@ -66,11 +67,12 @@ $rows = db_all(
 
 $buckets = monto_buckets();
 foreach ($rows as &$row) {
-    $row['id'] = trim((string) $row['id']);
+    $row['id'] = (int) $row['id'];
     $row['nombre'] = trim((string) $row['nombre']);
     $row['numero'] = trim((string) $row['numero']);
     $row['monto'] = trim((string) $row['monto']);
-    $row['otro'] = $row['otro'] === null ? null : trim((string) $row['otro']);
+    $row['judicializado'] = trim((string) $row['judicializado']);
+    $row['ingresos'] = trim((string) $row['ingresos']);
     $row['monto_min'] = $row['monto_min'] === null ? null : (int) $row['monto_min'];
     $row['monto_max'] = $row['monto_max'] === null ? null : (int) $row['monto_max'];
     $row['monto_bucket_label'] = $buckets[$row['monto_bucket']]['label'] ?? 'Sin monto';
@@ -92,7 +94,7 @@ json_response([
             'sort' => $sort,
             'dir' => $direction,
             'q' => $q,
-            'rut' => $rut,
+            'id' => $id,
             'monto' => $bucket,
         ],
     ],
