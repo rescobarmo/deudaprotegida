@@ -919,3 +919,7 @@ select:focus-visible {
     display: none;
   }
 }
+
+.logo-invert {
+  filter: brightness(0) invert(1);
+}

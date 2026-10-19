@@ -43,7 +43,7 @@ La clave se guarda hasheada, nunca en texto plano. Para cambiarla, genera un has
 php -r "echo password_hash('NuevaClaveSegura', PASSWORD_DEFAULT), PHP_EOL;"
 ```
 
-Reemplaza `password_hash` en `api/config.php` o define `DEUDA_AUTH_PASS_HASH` en el entorno. También puedes cambiar el usuario con `DEUDA_AUTH_USER`.
+Reemplaza `password_hash` en `api/config.php` o define `DEUDA_AUTH_PASS_HASH` en el entorno. Si la plataforma interfiere con los `$` del hash, usa `DEUDA_AUTH_PASS_HASH_B64` con el hash codificado en base64. También puedes cambiar el usuario con `DEUDA_AUTH_USER`.
 
 ## Configuración
 
@@ -61,6 +61,7 @@ Edita `api/config.php` o define variables de entorno en Apache/Windows:
 | `DEUDA_DEBUG` | `false` |
 | `DEUDA_AUTH_USER` | `admin` |
 | `DEUDA_AUTH_PASS_HASH` | vacío; debes configurarlo |
+| `DEUDA_AUTH_PASS_HASH_B64` | alternativa en base64 al hash |
 | `DEUDA_AUTH_SESSION` | `DEUDAPROTEGIDA` |
 | `DEUDA_AUTH_IDLE` | `7200` segundos |
 | `DEUDA_AUTH_MAX_ATTEMPTS` | `5` |
@@ -79,7 +80,13 @@ Requiere Docker Engine y Docker Compose v2. La imagen usa PHP 8.2 con Apache, PD
    php -r "echo password_hash('NuevaClaveFuerte', PASSWORD_DEFAULT), PHP_EOL;"
    ```
 
-3. Edita `.env` y define `DEUDA_AUTH_PASS_HASH`, `DEUDA_DB_PASS` y `MARIADB_ROOT_PASSWORD`. Usa comillas simples para evitar problemas con los `$` del hash.
+   Si la plataforma transforma los `$`, genera la versión base64:
+
+   ```powershell
+   php -r "echo base64_encode(password_hash('NuevaClaveFuerte', PASSWORD_DEFAULT)), PHP_EOL;"
+   ```
+
+3. Edita `.env` y define **una** de estas variables: `DEUDA_AUTH_PASS_HASH` o `DEUDA_AUTH_PASS_HASH_B64`. Define también `DEUDA_DB_PASS` y `MARIADB_ROOT_PASSWORD`. Usa comillas simples para evitar problemas con los `$` del hash.
 4. Para cargar datos en la primera ejecución, exporta la tabla y guarda el archivo como `sql/init/10-deudaprotegida.sql`:
 
    ```powershell
@@ -95,6 +102,8 @@ Requiere Docker Engine y Docker Compose v2. La imagen usa PHP 8.2 con Apache, PD
 6. Abre `http://127.0.0.1:8080`. El puerto se puede cambiar con `APP_PORT`.
 
 En un VPS, `127.0.0.1:8080` no es accesible desde tu equipo: publica el panel mediante un proxy inverso con TLS o un túnel SSH. Si el proxy inverso es otro contenedor, conéctalo a la red de Compose o ajusta `APP_BIND`.
+
+En Easypanel, configura `DEUDA_AUTH_USER` y `DEUDA_AUTH_PASS_HASH` o `DEUDA_AUTH_PASS_HASH_B64` como variables de entorno del servicio y vuelve a desplegar. El hash debe ser el resultado de `password_hash`, nunca la clave en texto plano.
 
 Comandos útiles:
 
@@ -134,6 +143,7 @@ deudaprotegida/
 │  ├─ css/app.css
 │  ├─ css/tailwind.css
 │  ├─ css/tailwind.input.css
+│  ├─ img/logo.svg
 │  ├─ js/api.js
 │  ├─ js/app.js
 │  ├─ js/charts.js

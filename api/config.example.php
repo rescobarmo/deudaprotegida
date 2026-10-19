@@ -1,6 +1,12 @@
 <?php
 declare(strict_types=1);
 
+$passwordHashBase64 = getenv('DEUDA_AUTH_PASS_HASH_B64') ?: '';
+$decodedPasswordHash = $passwordHashBase64 !== '' ? base64_decode($passwordHashBase64, true) : false;
+$passwordHash = is_string($decodedPasswordHash) && $decodedPasswordHash !== ''
+    ? $decodedPasswordHash
+    : (getenv('DEUDA_AUTH_PASS_HASH') ?: '');
+
 return [
     'db' => [
         'host' => getenv('DEUDA_DB_HOST') ?: '127.0.0.1',
@@ -19,7 +25,7 @@ return [
     'debug' => filter_var(getenv('DEUDA_DEBUG') ?: 'false', FILTER_VALIDATE_BOOLEAN),
     'auth' => [
         'username' => getenv('DEUDA_AUTH_USER') ?: 'admin',
-        'password_hash' => getenv('DEUDA_AUTH_PASS_HASH') ?: '',
+        'password_hash' => $passwordHash,
         'session_name' => getenv('DEUDA_AUTH_SESSION') ?: 'DEUDAPROTEGIDA',
         'idle_timeout' => (int) (getenv('DEUDA_AUTH_IDLE') ?: 7200),
         'max_attempts' => (int) (getenv('DEUDA_AUTH_MAX_ATTEMPTS') ?: 5),

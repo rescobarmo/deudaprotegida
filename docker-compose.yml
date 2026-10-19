@@ -12,7 +12,8 @@ services:
       DEUDA_DB_USER: deuda_app
       DEUDA_DB_PASS: ${DEUDA_DB_PASS:?Define DEUDA_DB_PASS en .env}
       DEUDA_AUTH_USER: ${DEUDA_AUTH_USER:-admin}
-      DEUDA_AUTH_PASS_HASH: ${DEUDA_AUTH_PASS_HASH:?Define DEUDA_AUTH_PASS_HASH en .env}
+      DEUDA_AUTH_PASS_HASH: ${DEUDA_AUTH_PASS_HASH:-}
+      DEUDA_AUTH_PASS_HASH_B64: ${DEUDA_AUTH_PASS_HASH_B64:-}
       DEUDA_DEBUG: "false"
       DEUDA_TIMEZONE: America/Santiago
       TZ: America/Santiago

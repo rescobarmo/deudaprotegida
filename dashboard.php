@@ -39,10 +39,6 @@ $authCsrf = csrf_token();
 </head>
 <body class="bg-[#f5f7fb] text-slate-900 antialiased dark:bg-[#020617] dark:text-slate-100">
   <svg xmlns="http://www.w3.org/2000/svg" class="pointer-events-none absolute h-0 w-0 overflow-hidden" aria-hidden="true">
-    <symbol id="i-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 3l7 3v5.2c0 4.4-2.9 8.3-7 9.5-4.1-1.2-7-5.1-7-9.5V6l7-3Z"/>
-      <path d="M9 14v-2M12 14V9.5M15 14v-3.5"/>
-    </symbol>
     <symbol id="i-dashboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
       <rect x="3" y="3" width="7" height="7" rx="1.5"/>
       <rect x="14" y="3" width="7" height="7" rx="1.5"/>
@@ -142,13 +138,9 @@ $authCsrf = csrf_token();
 
   <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 flex w-72 -translate-x-full flex-col bg-slate-950 text-slate-300 shadow-2xl transition-transform duration-300 lg:translate-x-0" aria-label="Navegación principal">
     <div class="flex h-20 items-center gap-3 border-b border-white/5 px-5">
-      <div class="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-indigo-500 to-teal-400 text-white shadow-lg shadow-indigo-500/20">
-        <svg class="h-5 w-5"><use href="#i-logo"></use></svg>
-      </div>
-      <div class="min-w-0">
-        <p class="display truncate text-sm font-extrabold tracking-tight text-white">Totemly</p>
-        <p class="text-xs text-slate-400">Deuda Protegida</p>
-      </div>
+      <a href="dashboard.php" class="min-w-0">
+        <img src="assets/img/logo.svg" alt="Deuda Protegida" class="logo-invert h-10 w-auto">
+      </a>
       <button id="sidebar-close" type="button" class="ml-auto grid h-8 w-8 place-items-center rounded-lg text-slate-400 hover:bg-white/10 hover:text-white lg:hidden" aria-label="Cerrar menú">
         <svg class="h-4 w-4"><use href="#i-x"></use></svg>
       </button>

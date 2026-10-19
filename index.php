@@ -70,10 +70,6 @@ $lockMinutes = $lockedSeconds > 0 ? (int) ceil($lockedSeconds / 60) : 0;
 </head>
 <body class="min-h-screen bg-slate-950 text-slate-900 antialiased">
   <svg xmlns="http://www.w3.org/2000/svg" class="pointer-events-none absolute h-0 w-0 overflow-hidden" aria-hidden="true">
-    <symbol id="i-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 3l7 3v5.2c0 4.4-2.9 8.3-7 9.5-4.1-1.2-7-5.1-7-9.5V6l7-3Z"/>
-      <path d="M9 14v-2M12 14V9.5M15 14v-3.5"/>
-    </symbol>
     <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
       <rect x="4" y="10" width="16" height="11" rx="2"/>
       <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
@@ -108,14 +104,8 @@ $lockMinutes = $lockedSeconds > 0 ? (int) ceil($lockedSeconds / 60) : 0;
     <section class="relative hidden overflow-hidden bg-slate-950 p-12 lg:flex lg:flex-col lg:justify-between">
       <div class="pointer-events-none absolute -left-24 top-16 h-80 w-80 rounded-full bg-indigo-500/20 blur-3xl"></div>
       <div class="pointer-events-none absolute -right-16 bottom-10 h-72 w-72 rounded-full bg-teal-400/10 blur-3xl"></div>
-      <div class="relative flex items-center gap-3">
-        <div class="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-indigo-500 to-teal-400 text-white shadow-lg shadow-indigo-500/20">
-          <svg class="h-6 w-6"><use href="#i-logo"></use></svg>
-        </div>
-        <div>
-          <p class="display text-base font-extrabold tracking-tight text-white">Totemly</p>
-          <p class="text-xs text-slate-400">Deuda Protegida</p>
-        </div>
+      <div class="relative">
+        <img src="assets/img/logo.svg" alt="Deuda Protegida" class="logo-invert h-14 w-auto">
       </div>
 
       <div class="relative max-w-lg">
@@ -168,14 +158,8 @@ $lockMinutes = $lockedSeconds > 0 ? (int) ceil($lockedSeconds / 60) : 0;
 
     <section class="flex items-center justify-center bg-[#f5f7fb] px-5 py-10 sm:px-8">
       <div class="w-full max-w-md">
-        <div class="mb-8 flex items-center gap-3 lg:hidden">
-          <div class="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-indigo-500 to-teal-400 text-white shadow-lg shadow-indigo-500/20">
-            <svg class="h-5 w-5"><use href="#i-logo"></use></svg>
-          </div>
-          <div>
-            <p class="display text-sm font-extrabold tracking-tight">Totemly</p>
-            <p class="text-xs text-slate-500">Deuda Protegida</p>
-          </div>
+        <div class="mb-8 lg:hidden">
+          <img src="assets/img/logo.svg" alt="Deuda Protegida" class="h-11 w-auto">
         </div>
 
         <div class="card p-7 sm:p-9">
