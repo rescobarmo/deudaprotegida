@@ -7,12 +7,12 @@ header('X-Robots-Tag: noindex, nofollow');
 header('Cache-Control: no-store, no-cache, must-revalidate');
 
 if (!is_authenticated()) {
-    header('Location: login.php');
+    header('Location: index.php');
     exit;
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: ./');
+    header('Location: dashboard.php');
     exit;
 }
 
@@ -25,5 +25,5 @@ if (!verify_csrf($token)) {
 }
 
 auth_logout();
-header('Location: login.php?logged_out=1');
+header('Location: index.php?logged_out=1');
 exit;

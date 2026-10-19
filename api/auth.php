@@ -120,7 +120,7 @@ function require_auth_page(): void
     if (is_authenticated()) {
         return;
     }
-    header('Location: login.php');
+    header('Location: index.php');
     exit;
 }
 
@@ -135,7 +135,7 @@ function require_auth_api(): void
     $wantsDocument = str_contains($accept, 'text/html') && !str_contains($accept, 'application/json');
 
     if ($wantsDocument) {
-        header('Location: ../login.php');
+        header('Location: ../index.php');
         exit;
     }
 

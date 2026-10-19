@@ -31,7 +31,7 @@ async function request(endpoint, params = {}) {
   }
 
   if (response.status === 401) {
-    const loginUrl = new URL("login.php", document.baseURI);
+    const loginUrl = new URL("index.php", document.baseURI);
     window.location.replace(loginUrl.toString());
     throw new ApiError("Sesión expirada. Redirigiendo al inicio de sesión.", 401);
   }

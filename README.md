@@ -113,8 +113,8 @@ docker compose up -d --build
 
 ```text
 deudaprotegida/
+├─ index.php
 ├─ dashboard.php
-├─ login.php
 ├─ logout.php
 ├─ Dockerfile
 ├─ docker-compose.yml
@@ -223,7 +223,7 @@ El parser de montos soporta formatos como `$30.000.000_–_$50.000.000`, `$30.00
 
 ## Tailwind
 
-El CSS está compilado en `assets/css/tailwind.css`. Si modificas clases en `dashboard.php`, `login.php` o `assets/js`, regenera el archivo:
+El CSS está compilado en `assets/css/tailwind.css`. Si modificas clases en `index.php`, `dashboard.php` o `assets/js`, regenera el archivo:
 
 ```powershell
 npx tailwindcss@3.4.16 -c tailwind.config.js -i assets/css/tailwind.input.css -o assets/css/tailwind.css --minify

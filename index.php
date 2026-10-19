@@ -7,7 +7,7 @@ header('X-Robots-Tag: noindex, nofollow');
 header('Cache-Control: no-store, no-cache, must-revalidate');
 
 if (is_authenticated()) {
-    header('Location: ./');
+    header('Location: dashboard.php');
     exit;
 }
 
@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (mb_strlen($username) > 100 || strlen($password) > 200) {
         $error = 'Los datos ingresados no son válidos.';
     } elseif (attempt_login($username, $password)) {
-        header('Location: ./');
+        header('Location: dashboard.php');
         exit;
     } else {
         $lockedSeconds = auth_is_locked();
@@ -202,7 +202,7 @@ $lockMinutes = $lockedSeconds > 0 ? (int) ceil($lockedSeconds / 60) : 0;
             </div>
           <?php endif; ?>
 
-          <form method="post" action="login.php" class="mt-6" autocomplete="on">
+          <form method="post" action="index.php" class="mt-6" autocomplete="on">
             <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>">
 
             <label class="field-label" for="username">Usuario</label>

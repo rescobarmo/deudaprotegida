@@ -1,5 +1,5 @@
 Options -Indexes
-DirectoryIndex dashboard.php
+DirectoryIndex index.php
 
 <FilesMatch "\.(sql|md|ini|log)$">
   Require all denied
